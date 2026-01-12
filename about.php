@@ -57,9 +57,20 @@ include 'includes/header.php';
             <div class="content-wrapper">
                 <div class="content-main">
                     <h2 data-translate="whoWeAre">Who We Are</h2>
-                    <p data-translate="whoWeAreDesc1">The Sadat Victorian Association is a community organization dedicated to serving the Shia Muslim community in Victoria. Founded with a vision to preserve our rich Islamic heritage and strengthen community bonds, we work tirelessly to provide educational, spiritual, and social support to our members.</p>
+                    <?php 
+                    $who_we_are_1 = $about_data['who_we_are_1'] ?? '';
+                    $who_we_are_2 = $about_data['who_we_are_2'] ?? '';
+                    if (!empty($who_we_are_1)): ?>
+                        <p><?php echo nl2br(htmlspecialchars($who_we_are_1)); ?></p>
+                    <?php else: ?>
+                        <p data-translate="whoWeAreDesc1">The Sadat Victorian Association is a community organization dedicated to serving the Shia Muslim community in Victoria. Founded with a vision to preserve our rich Islamic heritage and strengthen community bonds, we work tirelessly to provide educational, spiritual, and social support to our members.</p>
+                    <?php endif; ?>
                     
-                    <p data-translate="whoWeAreDesc2">Our association takes its name from "Sadat," referring to the descendants of the Prophet Muhammad (PBUH) through his daughter Fatima (AS) and son-in-law Imam Ali (AS). This connection to the Ahl al-Bayt (People of the Household) guides our values and mission.</p>
+                    <?php if (!empty($who_we_are_2)): ?>
+                        <p><?php echo nl2br(htmlspecialchars($who_we_are_2)); ?></p>
+                    <?php else: ?>
+                        <p data-translate="whoWeAreDesc2">Our association takes its name from "Sadat," referring to the descendants of the Prophet Muhammad (PBUH) through his daughter Fatima (AS) and son-in-law Imam Ali (AS). This connection to the Ahl al-Bayt (People of the Household) guides our values and mission.</p>
+                    <?php endif; ?>
 
                     <h2 data-translate="ourMission">Our Mission</h2>
                     <?php 

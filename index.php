@@ -35,11 +35,33 @@ include 'includes/header.php';
                     <img src="logo.jpeg" alt="Sadat Victorian Association" class="hero-logo">
                 </div>
                 <div class="hero-content">
-                    <h2 class="hero-title" id="hero-title"><?php echo htmlspecialchars($homepage_data['hero']['title'] ?? 'Welcome to Sadat Victorian Association'); ?></h2>
-                    <p class="hero-subtitle" id="hero-subtitle"><?php echo htmlspecialchars($homepage_data['hero']['subtitle'] ?? 'A community dedicated to preserving and sharing the rich heritage of Shia Islam'); ?></p>
+                    <h2 class="hero-title" 
+                        id="hero-title"
+                        data-title-en="<?php echo htmlspecialchars($homepage_data['hero']['title'] ?? 'Welcome to Sadat Victorian Association'); ?>"
+                        data-title-fa="<?php echo htmlspecialchars($homepage_data['hero']['title_fa'] ?? ''); ?>">
+                        <?php echo htmlspecialchars($homepage_data['hero']['title'] ?? 'Welcome to Sadat Victorian Association'); ?>
+                    </h2>
+                    <p class="hero-subtitle" 
+                        id="hero-subtitle"
+                        data-subtitle-en="<?php echo htmlspecialchars($homepage_data['hero']['subtitle'] ?? 'A community dedicated to preserving and sharing the rich heritage of Shia Islam'); ?>"
+                        data-subtitle-fa="<?php echo htmlspecialchars($homepage_data['hero']['subtitle_fa'] ?? ''); ?>">
+                        <?php echo htmlspecialchars($homepage_data['hero']['subtitle'] ?? 'A community dedicated to preserving and sharing the rich heritage of Shia Islam'); ?>
+                    </p>
                     <div class="hero-buttons">
-                        <a href="about.php" class="btn btn-primary" id="learn-more-btn"><?php echo htmlspecialchars($homepage_data['hero']['learn_more_text'] ?? 'Learn More'); ?></a>
-                        <a href="events.php" class="btn btn-secondary" id="upcoming-events-btn"><?php echo htmlspecialchars($homepage_data['hero']['events_text'] ?? 'Upcoming Events'); ?></a>
+                        <a href="about.php" 
+                           class="btn btn-primary" 
+                           id="learn-more-btn"
+                           data-text-en="<?php echo htmlspecialchars($homepage_data['hero']['learn_more_text'] ?? 'Learn More'); ?>"
+                           data-text-fa="<?php echo htmlspecialchars($homepage_data['hero']['learn_more_text_fa'] ?? ''); ?>">
+                            <?php echo htmlspecialchars($homepage_data['hero']['learn_more_text'] ?? 'Learn More'); ?>
+                        </a>
+                        <a href="events.php" 
+                           class="btn btn-secondary" 
+                           id="upcoming-events-btn"
+                           data-text-en="<?php echo htmlspecialchars($homepage_data['hero']['events_text'] ?? 'Upcoming Events'); ?>"
+                           data-text-fa="<?php echo htmlspecialchars($homepage_data['hero']['events_text_fa'] ?? ''); ?>">
+                            <?php echo htmlspecialchars($homepage_data['hero']['events_text'] ?? 'Upcoming Events'); ?>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -49,8 +71,17 @@ include 'includes/header.php';
     <section class="features-section">
         <div class="container">
             <div class="section-header">
-                <h2 id="mission-title"><?php echo htmlspecialchars($homepage_data['mission']['title'] ?? 'Our Mission'); ?></h2>
-                <p class="section-subtitle" id="mission-subtitle"><?php echo htmlspecialchars($homepage_data['mission']['subtitle'] ?? 'Connecting hearts, preserving traditions, and building community'); ?></p>
+                <h2 id="mission-title"
+                    data-title-en="<?php echo htmlspecialchars($homepage_data['mission']['title'] ?? 'Our Mission'); ?>"
+                    data-title-fa="<?php echo htmlspecialchars($homepage_data['mission']['title_fa'] ?? ''); ?>">
+                    <?php echo htmlspecialchars($homepage_data['mission']['title'] ?? 'Our Mission'); ?>
+                </h2>
+                <p class="section-subtitle" 
+                   id="mission-subtitle"
+                   data-subtitle-en="<?php echo htmlspecialchars($homepage_data['mission']['subtitle'] ?? 'Connecting hearts, preserving traditions, and building community'); ?>"
+                   data-subtitle-fa="<?php echo htmlspecialchars($homepage_data['mission']['subtitle_fa'] ?? ''); ?>">
+                    <?php echo htmlspecialchars($homepage_data['mission']['subtitle'] ?? 'Connecting hearts, preserving traditions, and building community'); ?>
+                </p>
             </div>
             <div class="features-grid">
                 <?php 
@@ -67,8 +98,16 @@ include 'includes/header.php';
                 foreach ($features as $feature): ?>
                     <div class="feature-card">
                         <div class="feature-icon"><?php echo htmlspecialchars($feature['icon'] ?? ''); ?></div>
-                        <h3 data-translate="<?php echo strtolower($feature['title'] ?? ''); ?>"><?php echo htmlspecialchars($feature['title'] ?? ''); ?></h3>
-                        <p data-translate="<?php echo strtolower($feature['title'] ?? '') . 'Desc'; ?>"><?php echo htmlspecialchars($feature['description'] ?? ''); ?></p>
+                        <h3 data-translate="<?php echo strtolower($feature['title'] ?? ''); ?>"
+                            data-title-en="<?php echo htmlspecialchars($feature['title'] ?? ''); ?>"
+                            data-title-fa="<?php echo htmlspecialchars($feature['title_fa'] ?? ''); ?>">
+                            <?php echo htmlspecialchars($feature['title'] ?? ''); ?>
+                        </h3>
+                        <p data-translate="<?php echo strtolower($feature['title'] ?? '') . 'Desc'; ?>"
+                           data-desc-en="<?php echo htmlspecialchars($feature['description'] ?? ''); ?>"
+                           data-desc-fa="<?php echo htmlspecialchars($feature['description_fa'] ?? ''); ?>">
+                            <?php echo htmlspecialchars($feature['description'] ?? ''); ?>
+                        </p>
                     </div>
                 <?php endforeach; ?>
             </div>

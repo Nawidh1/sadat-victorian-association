@@ -1,6 +1,6 @@
 <?php
 require_once 'auth.php';
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 $page_title = 'Manage News';
 $success = '';
@@ -12,12 +12,76 @@ try {
     // Handle form submissions
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['action'])) {
-            if ($_POST['action'] === 'add') {
+            if ($_POST['action'] === 'import_defaults') {
+                // Import default news items from website
+                $default_news = [
+                    [
+                        'id' => 'news_friday_prayers',
+                        'title' => 'Weekly Friday Prayers',
+                        'title_fa' => 'نماز جمعه هفتگی',
+                        'date' => '2024-12-15',
+                        'content' => "Join us every Friday for Jumu'ah prayers and community gathering. All are welcome.",
+                        'content_fa' => 'هر جمعه برای نماز جمعه و گردهمایی جامعه به ما بپیوندید. همه خوش آمدند.'
+                    ],
+                    [
+                        'id' => 'news_muharram',
+                        'title' => 'Muharram Commemoration',
+                        'title_fa' => 'یادبود محرم',
+                        'date' => '2024-12-20',
+                        'content' => 'Annual commemoration events honoring the martyrdom of Imam Hussain (AS) and his companions.',
+                        'content_fa' => 'رویدادهای یادبود سالانه برای گرامیداشت شهادت امام حسین (ع) و یارانش.'
+                    ],
+                    [
+                        'id' => 'news_islamic_studies',
+                        'title' => 'Islamic Studies Program',
+                        'title_fa' => 'برنامه مطالعات اسلامی',
+                        'date' => '2024-12-25',
+                        'content' => 'New educational program starting for adults and youth. Registration now open.',
+                        'content_fa' => 'برنامه آموزشی جدید برای بزرگسالان و جوانان شروع می‌شود. ثبت‌نام هم اکنون باز است.'
+                    ]
+                ];
+                
+                $imported = 0;
+                $skipped = 0;
+                
+                foreach ($default_news as $item) {
+                    // Check if news already exists
+                    $check_stmt = $pdo->prepare("SELECT id FROM news WHERE id = ?");
+                    $check_stmt->execute([$item['id']]);
+                    
+                    if ($check_stmt->fetch()) {
+                        $skipped++;
+                        continue;
+                    }
+                    
+                    // Insert news
+                    $stmt = $pdo->prepare("INSERT INTO news (id, title, title_fa, date, content, content_fa) 
+                                          VALUES (?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([
+                        $item['id'],
+                        $item['title'],
+                        $item['title_fa'],
+                        $item['date'],
+                        $item['content'],
+                        $item['content_fa']
+                    ]);
+                    $imported++;
+                }
+                
+                if ($imported > 0) {
+                    $success = "Successfully imported $imported default news item(s)" . ($skipped > 0 ? " ($skipped already existed)" : "") . "!";
+                } else {
+                    $success = "All default news items already exist in the database.";
+                }
+                
+            } elseif ($_POST['action'] === 'add') {
+                $news_id = uniqid('news_');
                 $stmt = $pdo->prepare(
-                    "INSERT INTO news (title, title_fa, date, content, content_fa) 
-                     VALUES (:title, :title_fa, :date, :content, :content_fa)"
+                    "INSERT INTO news (id, title, title_fa, date, content, content_fa) 
+                     VALUES (:id, :title, :title_fa, :date, :content, :content_fa)"
                 );
                 $stmt->execute([
+                    ':id' => $news_id,
                     ':title' => $_POST['title'] ?? '',
                     ':title_fa' => $_POST['title_fa'] ?? '',
                     ':date' => $_POST['date'] ?? date('Y-m-d'),
@@ -70,6 +134,7 @@ try {
     <div class="admin-container">
         <h1>Manage News</h1>
         
+        
         <?php if ($success): ?>
             <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
         <?php endif; ?>
@@ -117,7 +182,9 @@ try {
                 </div>
             
                 <div class="admin-list-section">
-                <h2>Existing News (<?php echo count($news); ?>)</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="margin: 0;">Existing News (<?php echo count($news); ?>)</h2>
+                </div>
                 <div class="items-list">
                     <?php if (empty($news)): ?>
                         <p class="empty-state">No news items yet. Add your first news item!</p>
@@ -197,7 +264,6 @@ try {
     </div>
 
     <script src="admin.js"></script>
-    <script src="translate.js"></script>
     <script src="admin-edit-modal.js"></script>
 </body>
 </html>

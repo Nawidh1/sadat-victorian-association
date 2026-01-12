@@ -1,16 +1,106 @@
 <?php
 require_once 'auth.php';
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
-$pdo = getDBConnection();
 $success = '';
 $error = '';
 
+// Initialize database connection
+try {
+    $pdo = getDBConnection();
+} catch (Exception $e) {
+    error_log("Database connection error in manage-events.php: " . $e->getMessage());
+    $error = 'Database connection failed. Please check your database configuration.';
+    $pdo = null;
+}
+
 // Handle form submissions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo) {
     if (isset($_POST['action'])) {
         try {
-            if ($_POST['action'] === 'add') {
+            if ($_POST['action'] === 'import_defaults') {
+                // Import default events from website
+                $default_events = [
+                    [
+                        'id' => 'event_friday_prayers',
+                        'title' => "Friday Prayers (Jumu'ah)",
+                        'title_fa' => 'نماز جمعه',
+                        'date' => date('Y-m-d', strtotime('next Friday')), // Next Friday
+                        'time' => '1:00 PM - 2:30 PM',
+                        'location' => 'Main Hall',
+                        'location_fa' => 'سالن اصلی',
+                        'description' => "Join us for weekly Friday prayers followed by community gathering and refreshments. All members of the community are welcome.",
+                        'description_fa' => 'هر جمعه برای نماز جمعه و سپس گردهمایی جامعه و پذیرایی به ما بپیوندید. همه اعضای جامعه خوش آمدند.',
+                        'category' => 'regular',
+                        'featured' => 0
+                    ],
+                    [
+                        'id' => 'event_muharram_ashura',
+                        'title' => "Muharram Commemoration - Day of Ashura",
+                        'title_fa' => 'یادبود محرم - روز عاشورا',
+                        'date' => '2024-12-20', // December 20, 2024
+                        'time' => '10:00 AM - 8:00 PM',
+                        'location' => 'Main Hall & Community Center',
+                        'location_fa' => 'سالن اصلی و مرکز جامعه',
+                        'description' => "Annual commemoration of the martyrdom of Imam Hussain (AS), his family, and companions at Karbala. The day includes lectures, mourning processions, and community iftar.",
+                        'description_fa' => 'یادبود سالانه شهادت امام حسین (ع)، خانواده و یارانش در کربلا. این روز شامل سخنرانی‌ها، دسته‌های عزاداری و افطار جامعه است.',
+                        'category' => 'special',
+                        'featured' => 1
+                    ],
+                    [
+                        'id' => 'event_ramadan_program',
+                        'title' => 'Ramadan Program',
+                        'title_fa' => 'برنامه رمضان',
+                        'date' => date('Y-m-d', strtotime('next year March 1')), // Approximate Ramadan date
+                        'time' => '',
+                        'location' => '',
+                        'location_fa' => '',
+                        'description' => 'Daily iftar gatherings, Taraweeh prayers, and special nightly programs throughout the holy month of Ramadan.',
+                        'description_fa' => 'گردهمایی‌های روزانه افطار، نماز تراویح و برنامه‌های شبانه ویژه در طول ماه مبارک رمضان.',
+                        'category' => 'annual',
+                        'featured' => 0
+                    ]
+                ];
+                
+                $imported = 0;
+                $skipped = 0;
+                
+                foreach ($default_events as $event) {
+                    // Check if event already exists
+                    $check_stmt = $pdo->prepare("SELECT id FROM events WHERE id = ?");
+                    $check_stmt->execute([$event['id']]);
+                    
+                    if ($check_stmt->fetch()) {
+                        $skipped++;
+                        continue; // Skip if already exists
+                    }
+                    
+                    // Insert event
+                    $stmt = $pdo->prepare("INSERT INTO events (id, title, title_fa, date, time, location, location_fa, description, description_fa, category, featured) 
+                                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([
+                        $event['id'],
+                        $event['title'],
+                        $event['title_fa'],
+                        $event['date'],
+                        $event['time'],
+                        $event['location'],
+                        $event['location_fa'],
+                        $event['description'],
+                        $event['description_fa'],
+                        $event['category'],
+                        $event['featured']
+                    ]);
+                    $imported++;
+                }
+                
+                if ($imported > 0) {
+                    $success = "Successfully imported $imported default event(s)" . ($skipped > 0 ? " ($skipped already existed)" : "") . "!";
+                } else {
+                    $success = "All default events already exist in the database.";
+                }
+                
+            } elseif ($_POST['action'] === 'add') {
                 // Validate input
                 $title = trim($_POST['title'] ?? '');
                 if (empty($title)) {
@@ -77,9 +167,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get all events
-$stmt = $pdo->query("SELECT * FROM events ORDER BY date DESC, created_at DESC");
-$events = $stmt->fetchAll();
+// Get all events from database
+$events = [];
+if ($pdo) {
+    try {
+        $stmt = $pdo->query("SELECT * FROM events ORDER BY date DESC, created_at DESC");
+        $events = $stmt->fetchAll();
+    } catch (Exception $e) {
+        error_log("Error loading events in admin: " . $e->getMessage());
+        $events = [];
+        if (empty($error)) {
+            $error = 'Error loading events: ' . $e->getMessage();
+        }
+    }
+} else {
+    $events = [];
+}
 
 // Get event for editing (for initial page load only, modal handles editing)
 $editing_event = null;
@@ -98,10 +201,6 @@ $editing_event = null;
     
     <div class="admin-container">
         <h1>Manage Events</h1>
-        
-        <?php if ($success): ?>
-            <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
-        <?php endif; ?>
         
         <?php if ($error): ?>
             <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
@@ -175,10 +274,17 @@ $editing_event = null;
                 </div>
             
                 <div class="admin-list-section">
-                <h2>Existing Events (<?php echo count($events); ?>)</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="margin: 0;">Existing Events (<?php echo count($events); ?>)</h2>
+                </div>
+                <?php if ($pdo === null): ?>
+                    <div class="alert alert-error">
+                        <strong>Database Connection Error:</strong> Cannot connect to database. Please check your database configuration in <code>config/database.php</code>
+                    </div>
+                <?php endif; ?>
                 <div class="items-list">
                     <?php if (empty($events)): ?>
-                        <p class="empty-state">No events yet. Add your first event!</p>
+                        <p class="empty-state">No events found in database. <?php if ($pdo): ?>Add your first event using the form on the left!<?php endif; ?></p>
                     <?php else: ?>
                         <?php foreach ($events as $event): ?>
                             <div class="item-card" 
@@ -192,10 +298,10 @@ $editing_event = null;
                                 data-category="<?php echo htmlspecialchars($event['category'] ?? 'regular'); ?>"
                                 data-description="<?php echo htmlspecialchars($event['description'] ?? ''); ?>"
                                 data-description-fa="<?php echo htmlspecialchars($event['description_fa'] ?? ''); ?>"
-                                data-featured="<?php echo $event['featured'] ? '1' : '0'; ?>">
+                                data-featured="<?php echo ($event['featured'] == 1 || $event['featured'] === true || $event['featured'] === '1') ? '1' : '0'; ?>">
                                 <div class="item-header">
                                     <h3><?php echo htmlspecialchars($event['title']); ?></h3>
-                                    <?php if ($event['featured']): ?>
+                                    <?php if ($event['featured'] == 1 || $event['featured'] === true || $event['featured'] === '1'): ?>
                                         <span class="badge">Featured</span>
                                     <?php endif; ?>
                                 </div>
@@ -302,7 +408,6 @@ $editing_event = null;
     </div>
 
     <script src="admin.js"></script>
-    <script src="translate.js"></script>
     <script src="admin-edit-modal.js"></script>
 </body>
 </html>

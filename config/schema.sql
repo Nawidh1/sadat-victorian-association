@@ -2,9 +2,9 @@
 -- Run this SQL script in phpMyAdmin or MySQL command line to create the database
 
 -- Create database (if it doesn't exist)
-CREATE DATABASE IF NOT EXISTS information_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS sadat_victorian_association CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE information_db;
+USE sadat_victorian_association;
 
 -- Table: events
 CREATE TABLE IF NOT EXISTS events (

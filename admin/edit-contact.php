@@ -8,15 +8,35 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo = getDBConnection();
-        $stmt = $pdo->prepare("INSERT INTO contact (field, value_en, value_fa) VALUES (?, ?, ?)
-                               ON DUPLICATE KEY UPDATE value_en=VALUES(value_en), value_fa=VALUES(value_fa)");
         
-        $fields = ['address', 'phone', 'email', 'hours'];
-        foreach ($fields as $field) {
-            $stmt->execute([$field, $_POST[$field] ?? '', '']);
+        if (isset($_POST['action']) && $_POST['action'] === 'import_defaults') {
+            // Import default contact information
+            $default_contact = [
+                'address' => "123 Community Street\nVictoria, VIC 3000\nAustralia",
+                'phone' => '+61 (0)3 1234 5678',
+                'email' => 'info@sadatvictorian.org.au',
+                'hours' => "Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM\nSunday: Closed"
+            ];
+            
+            $stmt = $pdo->prepare("INSERT INTO contact (field, value_en, value_fa) VALUES (?, ?, ?)
+                                   ON DUPLICATE KEY UPDATE value_en=VALUES(value_en), value_fa=VALUES(value_fa)");
+            
+            foreach ($default_contact as $field => $value) {
+                $stmt->execute([$field, $value, '']);
+            }
+            
+            $success = 'Default contact information imported successfully!';
+        } else {
+            $stmt = $pdo->prepare("INSERT INTO contact (field, value_en, value_fa) VALUES (?, ?, ?)
+                                   ON DUPLICATE KEY UPDATE value_en=VALUES(value_en), value_fa=VALUES(value_fa)");
+            
+            $fields = ['address', 'phone', 'email', 'hours'];
+            foreach ($fields as $field) {
+                $stmt->execute([$field, $_POST[$field] ?? '', '']);
+            }
+            
+            $success = 'Contact information updated successfully!';
         }
-        
-        $success = 'Contact information updated successfully!';
     } catch (Exception $e) {
         error_log("Error updating contact info: " . $e->getMessage());
         $error = 'Failed to update contact information. Please try again.';

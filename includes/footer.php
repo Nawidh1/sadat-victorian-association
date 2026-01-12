@@ -50,9 +50,6 @@
 
     <script src="js/main.js"></script>
     <script src="js/translations.js"></script>
-    <script src="js/quotes.js"></script>
-    <script src="js/date-converter.js"></script>
-    <script src="js/admin-content.js"></script>
 </body>
 </html>
 

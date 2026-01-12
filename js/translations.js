@@ -842,12 +842,10 @@ function updateDynamicContent(t, lang) {
         if (valueP) {
             const valueEn = valueItem.getAttribute('data-value-en');
             const valueFa = valueItem.getAttribute('data-value-fa');
-            if (valueEn || valueFa) {
-                if (isFarsi && valueFa) {
-                    valueP.textContent = valueFa;
-                } else if (!isFarsi && valueEn) {
-                    valueP.textContent = valueEn;
-                }
+            if (isFarsi && valueFa && valueFa.trim() !== '') {
+                valueP.textContent = valueFa;
+            } else if (valueEn) {
+                valueP.textContent = valueEn;
             }
         }
     });

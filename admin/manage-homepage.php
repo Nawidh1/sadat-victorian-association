@@ -9,7 +9,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo = getDBConnection();
         
-        // Save hero section
+        if (isset($_POST['action']) && $_POST['action'] === 'import_defaults') {
+            // Import default homepage content from website
+            $default_hero = [
+                'title' => 'Welcome to Sadat Victorian Association',
+                'title_fa' => 'به انجمن سادات ویکتوریایی خوش آمدید',
+                'subtitle' => 'A community dedicated to preserving and sharing the rich heritage of Shia Islam',
+                'subtitle_fa' => 'جامعه‌ای متعهد به حفظ و اشتراک‌گذاری میراث غنی اسلام شیعی',
+                'learn_more_text' => 'Learn More',
+                'learn_more_text_fa' => 'بیشتر بدانید',
+                'events_text' => 'Upcoming Events',
+                'events_text_fa' => 'رویدادهای آینده'
+            ];
+            
+            $default_mission = [
+                'title' => 'Our Mission',
+                'title_fa' => 'ماموریت ما',
+                'subtitle' => 'Connecting hearts, preserving traditions, and building community',
+                'subtitle_fa' => 'اتصال قلب‌ها، حفظ سنت‌ها و ساخت جامعه'
+            ];
+            
+            $default_features = [
+                [
+                    'icon' => '📚',
+                    'title' => 'Education',
+                    'title_fa' => 'آموزش',
+                    'description' => 'Providing authentic Islamic education and resources for the Shia community',
+                    'description_fa' => 'ارائه آموزش و منابع اصیل اسلامی برای جامعه شیعی'
+                ],
+                [
+                    'icon' => '🤝',
+                    'title' => 'Community',
+                    'title_fa' => 'جامعه',
+                    'description' => 'Building strong bonds and supporting one another in faith and daily life',
+                    'description_fa' => 'ایجاد پیوندهای قوی و حمایت از یکدیگر در ایمان و زندگی روزمره'
+                ],
+                [
+                    'icon' => '🕌',
+                    'title' => 'Spirituality',
+                    'title_fa' => 'معنویت',
+                    'description' => 'Fostering spiritual growth through prayer, reflection, and religious observance',
+                    'description_fa' => 'پرورش رشد معنوی از طریق نماز، تفکر و مراسم مذهبی'
+                ],
+                [
+                    'icon' => '📅',
+                    'title' => 'Events',
+                    'title_fa' => 'رویدادها',
+                    'description' => 'Organizing gatherings, lectures, and commemorations throughout the year',
+                    'description_fa' => 'سازماندهی گردهمایی‌ها، سخنرانی‌ها و یادبودها در طول سال'
+                ]
+            ];
+            
+            $stmt = $pdo->prepare("INSERT INTO homepage (section, data) VALUES (?, ?)
+                                  ON DUPLICATE KEY UPDATE data=VALUES(data)");
+            $stmt->execute(['hero', json_encode($default_hero, JSON_UNESCAPED_UNICODE)]);
+            $stmt->execute(['mission', json_encode($default_mission, JSON_UNESCAPED_UNICODE)]);
+            $stmt->execute(['features', json_encode($default_features, JSON_UNESCAPED_UNICODE)]);
+            
+            $success = 'Default homepage content imported successfully!';
+        } else {
+            // Save hero section
         $hero_data = [
             'title' => $_POST['hero_title'] ?? '',
             'title_fa' => $_POST['hero_title_fa'] ?? '',
@@ -50,6 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute(['features', json_encode($features, JSON_UNESCAPED_UNICODE)]);
         
         $success = 'Homepage content updated successfully!';
+        }
     } catch (Exception $e) {
         error_log("Error updating homepage: " . $e->getMessage());
         $error = 'Failed to update homepage content. Please try again.';

@@ -238,5 +238,5 @@ include 'includes/header.php';
 </div>
 
 <?php include 'includes/footer.php'; ?>
-<script src="js/event-modal.js"></script>
+<script src="js/modals.js"></script>
 
