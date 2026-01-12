@@ -1,0 +1,44 @@
+# Sensitive configuration files
+config/database.php
+
+# Logs
+*.log
+logs/
+error_log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+
+# XAMPP specific
+xampp/
+
+# Node modules (if any)
+node_modules/
+package-lock.json
+
+# Environment files
+.env
+.env.local
+
+# Backup files
+*.bak
+*.backup
+*_backup.php
+
+# PHP specific
+vendor/
+composer.lock

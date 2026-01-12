@@ -1,0 +1,16 @@
+# Redirect HTML pages to PHP versions
+RewriteEngine On
+
+# Redirect index.html to index.php
+RewriteRule ^index\.html$ index.php [R=301,L]
+
+# Redirect other HTML pages to PHP
+RewriteRule ^about\.html$ about.php [R=301,L]
+RewriteRule ^contact\.html$ contact.php [R=301,L]
+RewriteRule ^events\.html$ events.php [R=301,L]
+RewriteRule ^news\.html$ news.php [R=301,L]
+RewriteRule ^resources\.html$ resources.php [R=301,L]
+
+# Make index.php the default page
+DirectoryIndex index.php index.html
+
