@@ -25,6 +25,16 @@ body {
     color: var(--text-dark);
     line-height: 1.6;
     background-color: var(--bg-white);
+    animation: pageFadeIn 0.8s ease-out;
+}
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -212,6 +222,115 @@ html[dir="rtl"] .logo h1 {
     }
 }
 
+/* Beautiful Pulse Animation */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
+    }
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+/* Glow Animation */
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(212, 175, 55, 0.3),
+                    0 0 10px rgba(212, 175, 55, 0.2),
+                    0 0 15px rgba(212, 175, 55, 0.1);
+    }
+    50% {
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.5),
+                    0 0 20px rgba(212, 175, 55, 0.3),
+                    0 0 30px rgba(212, 175, 55, 0.2);
+    }
+}
+
+/* Add pulse to primary buttons on hover */
+.btn-primary:hover {
+    animation: pulse 2s infinite;
+}
+
+/* Add subtle glow to feature cards */
+.feature-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(212, 175, 55, 0.1),
+        transparent
+    );
+    transform: rotate(45deg);
+    transition: all 0.6s;
+    opacity: 0;
+}
+
+.feature-card:hover::before {
+    animation: shimmer 1.5s infinite;
+    opacity: 1;
+}
+
+/* Animated gradient background for sections */
+.features-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.features-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(26, 71, 42, 0.03),
+        transparent
+    );
+    animation: slideAcross 8s infinite;
+}
+
+@keyframes slideAcross {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Ripple Effect Animation */
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
 /* Mobile responsive for floating button */
 @media (max-width: 768px) {
     .floating-lang-button {
@@ -262,6 +381,125 @@ html[dir="rtl"] .logo h1 {
     bottom: 0;
     background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
     opacity: 0.3;
+}
+
+/* Animated Floating Particles */
+.hero-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    animation: particleFloat 20s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes particleFloat {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.8;
+    }
+    25% {
+        transform: translate(30px, -30px) scale(1.1);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-20px, 20px) scale(0.9);
+        opacity: 0.6;
+    }
+    75% {
+        transform: translate(20px, 30px) scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+/* Floating Animated Shapes */
+.animated-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.shape {
+    position: absolute;
+    opacity: 0.1;
+    animation: floatShape 15s infinite ease-in-out;
+}
+
+.shape:nth-child(1) {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--accent-color), transparent);
+    border-radius: 50%;
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.shape:nth-child(2) {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    top: 60%;
+    right: 15%;
+    animation-delay: 2s;
+}
+
+.shape:nth-child(3) {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(225deg, var(--accent-color), transparent);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    bottom: 20%;
+    left: 20%;
+    animation-delay: 4s;
+}
+
+.shape:nth-child(4) {
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.08), transparent);
+    border-radius: 20px;
+    top: 30%;
+    right: 30%;
+    animation-delay: 6s;
+}
+
+.shape:nth-child(5) {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(315deg, var(--accent-color), transparent);
+    border-radius: 50%;
+    bottom: 40%;
+    right: 10%;
+    animation-delay: 8s;
+}
+
+@keyframes floatShape {
+    0%, 100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+        transform: translate(50px, -50px) rotate(90deg);
+    }
+    50% {
+        transform: translate(-30px, 30px) rotate(180deg);
+    }
+    75% {
+        transform: translate(40px, 40px) rotate(270deg);
+    }
 }
 
 .hero-layout {
@@ -390,6 +628,18 @@ html[dir="rtl"] .logo h1 {
 .news-section,
 .content-section {
     padding: 5rem 0;
+    animation: contentFadeInUp 1s ease-out;
+}
+
+@keyframes contentFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .features-section {
@@ -442,8 +692,16 @@ html[dir="rtl"] .logo h1 {
 }
 
 .feature-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px) scale(1.03);
     box-shadow: var(--shadow-lg);
+}
+
+.feature-icon {
+    transition: transform 0.4s ease;
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.2) rotate(5deg);
 }
 
 .feature-icon {
@@ -479,8 +737,29 @@ html[dir="rtl"] .logo h1 {
 }
 
 .news-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-3px) scale(1.02);
     box-shadow: var(--shadow-lg);
+    border-left-width: 6px;
+}
+
+.news-card {
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.news-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 0;
+    background: var(--accent-color);
+    transition: height 0.4s ease;
+}
+
+.news-card:hover::after {
+    height: 100%;
 }
 
 .news-date {
@@ -540,12 +819,50 @@ html[dir="rtl"] .logo h1 {
     background: var(--primary-color);
     color: white;
     padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.quote-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+    animation: quoteGlow 10s ease-in-out infinite;
+}
+
+@keyframes quoteGlow {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.5;
+    }
+    50% {
+        transform: translate(30px, 30px) scale(1.2);
+        opacity: 0.8;
+    }
 }
 
 .quote-section blockquote {
     text-align: center;
     max-width: 800px;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    animation: quoteFadeIn 1s ease-out;
+}
+
+@keyframes quoteFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .quote-section p {
@@ -568,17 +885,81 @@ html[dir="rtl"] .logo h1 {
     color: white;
     padding: 4rem 0;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+    animation: pageHeaderFadeIn 1s ease-out;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
+    animation: headerGlow 8s ease-in-out infinite;
+}
+
+@keyframes pageHeaderFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes headerGlow {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translate(40px, 40px) scale(1.3);
+        opacity: 0.9;
+    }
 }
 
 .page-header h1 {
     font-size: 2.8rem;
     color: white;
     margin-bottom: 0.8rem;
+    position: relative;
+    z-index: 1;
+    animation: titleSlideIn 1s ease-out 0.2s both;
+}
+
+@keyframes titleSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .page-subtitle {
     font-size: 1.2rem;
     opacity: 0.95;
+    position: relative;
+    z-index: 1;
+    animation: subtitleFadeIn 1s ease-out 0.4s both;
+}
+
+@keyframes subtitleFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 0.95;
+        transform: translateY(0);
+    }
 }
 
 /* Content Section */
@@ -594,6 +975,36 @@ html[dir="rtl"] .logo h1 {
     color: var(--primary-color);
     border-bottom: 2px solid var(--accent-color);
     padding-bottom: 0.5rem;
+    position: relative;
+    animation: headingFadeIn 0.8s ease-out;
+}
+
+@keyframes headingFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.content-main h2::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 2px;
+    background: var(--accent-color);
+    animation: headingUnderline 1s ease-out 0.3s forwards;
+}
+
+@keyframes headingUnderline {
+    to {
+        width: 100%;
+    }
 }
 
 .content-main h2:first-child {
@@ -604,6 +1015,18 @@ html[dir="rtl"] .logo h1 {
     margin-bottom: 1.5rem;
     line-height: 1.8;
     color: var(--text-dark);
+    animation: paragraphFadeIn 0.8s ease-out;
+}
+
+@keyframes paragraphFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .content-main ul {
@@ -634,6 +1057,44 @@ html[dir="rtl"] .logo h1 {
     color: var(--accent-color);
     font-weight: bold;
     font-size: 1.2rem;
+    animation: checkmarkPop 0.5s ease-out;
+}
+
+@keyframes checkmarkPop {
+    0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.3) rotate(180deg);
+    }
+    100% {
+        transform: scale(1) rotate(360deg);
+        opacity: 1;
+    }
+}
+
+.mission-list li {
+    animation: listItemFadeIn 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+.mission-list li:nth-child(1) { animation-delay: 0.1s; }
+.mission-list li:nth-child(2) { animation-delay: 0.2s; }
+.mission-list li:nth-child(3) { animation-delay: 0.3s; }
+.mission-list li:nth-child(4) { animation-delay: 0.4s; }
+.mission-list li:nth-child(5) { animation-delay: 0.5s; }
+.mission-list li:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes listItemFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 .values-grid {
@@ -648,6 +1109,32 @@ html[dir="rtl"] .logo h1 {
     padding: 1.5rem;
     border-radius: 6px;
     border-top: 3px solid var(--accent-color);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.value-item:hover {
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: var(--shadow-lg);
+    border-top-width: 5px;
+}
+
+.value-item::after {
+    content: '✓';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2rem;
+    color: var(--accent-color);
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+    transition: all 0.4s ease;
+}
+
+.value-item:hover::after {
+    opacity: 0.2;
+    transform: scale(1.5) rotate(360deg);
 }
 
 .value-item h3 {
@@ -678,6 +1165,36 @@ html[dir="rtl"] .logo h1 {
     color: var(--primary-color);
     border-bottom: 2px solid var(--accent-color);
     padding-bottom: 0.5rem;
+    position: relative;
+    animation: sectionTitleSlide 0.8s ease-out;
+}
+
+@keyframes sectionTitleSlide {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.event-category h2::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent-color);
+    animation: titleUnderline 1s ease-out 0.5s forwards;
+}
+
+@keyframes titleUnderline {
+    to {
+        width: 100%;
+    }
 }
 
 .events-list {
@@ -703,8 +1220,30 @@ html[dir="rtl"] .logo h1 {
 }
 
 .event-card:hover {
-    transform: translateX(5px);
+    transform: translateX(8px) scale(1.02);
     box-shadow: var(--shadow-lg);
+    border-left-width: 6px;
+}
+
+.event-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.event-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.1), transparent);
+    transition: width 0.5s ease;
+}
+
+.event-card:hover::before {
+    width: 100%;
 }
 
 .event-card.clickable-event {
@@ -770,8 +1309,30 @@ html[dir="rtl"] .logo h1 {
 }
 
 .program-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow);
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: var(--shadow-lg);
+    border-top-width: 5px;
+}
+
+.program-card {
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.program-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background: var(--accent-color);
+    transition: width 0.4s ease;
+}
+
+.program-card:hover::after {
+    width: 80%;
 }
 
 .program-card h3 {
@@ -802,6 +1363,19 @@ html[dir="rtl"] .logo h1 {
     color: var(--primary-color);
     border-bottom: 2px solid var(--accent-color);
     padding-bottom: 0.5rem;
+    position: relative;
+    animation: sectionTitleSlide 0.8s ease-out;
+}
+
+.resource-category h2::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent-color);
+    animation: titleUnderline 1s ease-out 0.5s forwards;
 }
 
 .resources-grid {
@@ -820,10 +1394,33 @@ html[dir="rtl"] .logo h1 {
 }
 
 .resource-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-5px) scale(1.02);
     box-shadow: var(--shadow-lg);
     border-top-color: var(--accent-color);
+    border-top-width: 5px;
     cursor: pointer;
+}
+
+.resource-card {
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.resource-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0;
+    background: linear-gradient(180deg, var(--accent-color), transparent);
+    transition: height 0.4s ease;
+    z-index: 0;
+}
+
+.resource-card:hover::after {
+    height: 100%;
+    opacity: 0.05;
 }
 
 .resource-card h3 {
@@ -857,8 +1454,29 @@ html[dir="rtl"] .logo h1 {
 
 .calendar-item:hover {
     background: white;
-    box-shadow: var(--shadow);
-    transform: translateX(5px);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(8px) scale(1.02);
+}
+
+.calendar-item {
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.calendar-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: linear-gradient(90deg, var(--accent-color), transparent);
+    transition: width 0.4s ease;
+    opacity: 0.1;
+}
+
+.calendar-item:hover::before {
+    width: 100%;
 }
 
 .calendar-date {
@@ -901,8 +1519,30 @@ html[dir="rtl"] .logo h1 {
 }
 
 .reading-item:hover {
-    transform: translateX(5px);
+    transform: translateX(8px) scale(1.01);
     box-shadow: var(--shadow-lg);
+    border-left-width: 6px;
+}
+
+.reading-item {
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reading-item::after {
+    content: '📖';
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    font-size: 2rem;
+    opacity: 0;
+    transition: all 0.4s ease;
+}
+
+.reading-item:hover::after {
+    transform: translateY(-50%) scale(1);
+    opacity: 0.3;
 }
 
 .reading-item h3 {
@@ -940,8 +1580,30 @@ html[dir="rtl"] .logo h1 {
 }
 
 .service-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-5px) scale(1.03);
     box-shadow: var(--shadow-lg);
+    border-top-width: 5px;
+}
+
+.service-card {
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.service-card::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, transparent, rgba(212, 175, 55, 0.1), transparent);
+    transition: top 0.5s ease;
+}
+
+.service-card:hover::before {
+    top: 0;
 }
 
 .service-card h3 {
@@ -1026,6 +1688,40 @@ html[dir="rtl"] .logo h1 {
     background: var(--bg-light);
     padding: 2.5rem;
     border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    animation: formSlideIn 0.8s ease-out 0.3s both;
+}
+
+@keyframes formSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.contact-form-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(26, 71, 42, 0.05), transparent);
+    animation: formShimmer 3s infinite;
+}
+
+@keyframes formShimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
 }
 
 .contact-form-wrapper h2 {
@@ -1068,6 +1764,20 @@ html[dir="rtl"] .logo h1 {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(26, 71, 42, 0.1);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    transition: all 0.3s ease;
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+    border-color: var(--primary-light);
 }
 
 .form-group textarea {
@@ -1078,6 +1788,29 @@ html[dir="rtl"] .logo h1 {
 .map-section {
     padding: 3rem 0;
     background: var(--bg-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.map-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(26, 71, 42, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+    animation: mapBackgroundFloat 10s ease-in-out infinite;
+}
+
+@keyframes mapBackgroundFloat {
+    0%, 100% {
+        transform: translate(0, 0);
+    }
+    50% {
+        transform: translate(20px, -20px);
+    }
 }
 
 .map-section h2 {
@@ -1094,6 +1827,25 @@ html[dir="rtl"] .logo h1 {
     padding: 4rem 2rem;
     text-align: center;
     color: var(--text-light);
+    position: relative;
+    z-index: 1;
+    transition: all 0.4s ease;
+    animation: mapPulse 3s ease-in-out infinite;
+}
+
+@keyframes mapPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(26, 71, 42, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(26, 71, 42, 0);
+    }
+}
+
+.map-placeholder:hover {
+    border-color: var(--primary-color);
+    border-style: solid;
+    transform: scale(1.02);
 }
 
 .map-note {

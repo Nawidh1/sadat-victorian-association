@@ -29,6 +29,13 @@ include 'includes/header.php';
 <main>
     <section class="hero-section">
         <div class="hero-overlay"></div>
+        <div class="animated-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
         <div class="container">
             <div class="hero-layout">
                 <div class="hero-logo-section">

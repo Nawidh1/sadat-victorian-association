@@ -84,12 +84,52 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, observerOptions);
 
-    // Observe elements for fade-in animation
-    document.querySelectorAll('.feature-card, .news-card, .event-card, .resource-card').forEach(el => {
+    // Observe elements for fade-in animation with staggered effect
+    const animatedElements = document.querySelectorAll(
+        '.feature-card, .news-card, .event-card, .resource-card, .program-card, ' +
+        '.value-item, .calendar-item, .reading-item, .service-card, .contact-item'
+    );
+    
+    animatedElements.forEach((el, index) => {
         el.style.opacity = '0';
-        el.style.transform = 'translateY(20px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = `opacity 0.8s ease ${index * 0.1}s, transform 0.8s ease ${index * 0.1}s`;
         observer.observe(el);
+    });
+    
+    // Enhanced scroll animation for page headers
+    const pageHeaders = document.querySelectorAll('.page-header');
+    pageHeaders.forEach(header => {
+        const headerObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, { threshold: 0.1 });
+        headerObserver.observe(header);
+    });
+    
+    // Add hover ripple effect to buttons
+    const buttons = document.querySelectorAll('.btn');
+    buttons.forEach(button => {
+        button.addEventListener('mouseenter', function(e) {
+            const ripple = document.createElement('span');
+            ripple.style.position = 'absolute';
+            ripple.style.borderRadius = '50%';
+            ripple.style.background = 'rgba(255, 255, 255, 0.3)';
+            ripple.style.transform = 'scale(0)';
+            ripple.style.animation = 'ripple 0.6s ease-out';
+            ripple.style.left = (e.offsetX - 10) + 'px';
+            ripple.style.top = (e.offsetY - 10) + 'px';
+            ripple.style.width = '20px';
+            ripple.style.height = '20px';
+            this.style.position = 'relative';
+            this.style.overflow = 'hidden';
+            this.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 600);
+        });
     });
 });
 
