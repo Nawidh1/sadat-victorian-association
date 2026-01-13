@@ -69,10 +69,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Fade in animation on scroll
+    // Fade in animation on scroll - optimized for faster loading
     const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
+        threshold: 0.05,
+        rootMargin: '0px 0px 100px 0px' // Start animations earlier
     };
 
     const observer = new IntersectionObserver(function(entries) {
@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
                 entry.target.style.transform = 'translateY(0)';
+                entry.target.style.willChange = 'auto'; // Remove will-change after animation
             }
         });
     }, observerOptions);
@@ -92,8 +93,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     animatedElements.forEach((el, index) => {
         el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = `opacity 0.8s ease ${index * 0.1}s, transform 0.8s ease ${index * 0.1}s`;
+        el.style.transform = 'translateY(20px)'; // Reduced from 30px
+        el.style.willChange = 'opacity, transform'; // Optimize for animation
+        el.style.transition = `opacity 0.4s ease ${index * 0.05}s, transform 0.4s ease ${index * 0.05}s`; // Faster: 0.8s -> 0.4s, delay 0.1s -> 0.05s
         observer.observe(el);
     });
     

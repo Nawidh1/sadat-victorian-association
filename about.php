@@ -11,6 +11,11 @@ try {
     $about_data = [];
     foreach ($about_rows as $row) {
         $field = $row['field'];
+        // Handle special fields that should not be split (like about_image_1, about_image_2, about_image_3)
+        if ($field === 'about_image_1' || $field === 'about_image_2' || $field === 'about_image_3') {
+            $about_data[$field] = $row['value_en'];
+            continue;
+        }
         // Handle nested fields like values_faith, values_service, etc.
         if (strpos($field, '_') !== false) {
             list($parent, $child) = explode('_', $field, 2);
@@ -55,6 +60,29 @@ include 'includes/header.php';
     <section class="content-section">
         <div class="container">
             <div class="content-wrapper">
+                <?php 
+                // Get about images (3 columns)
+                $about_images = [
+                    $about_data['about_image_1'] ?? '',
+                    $about_data['about_image_2'] ?? '',
+                    $about_data['about_image_3'] ?? ''
+                ];
+                $has_images = !empty(array_filter($about_images));
+                if ($has_images): ?>
+                <div class="about-image-container-three">
+                    <?php foreach ($about_images as $index => $image): ?>
+                        <div class="about-image-column">
+                            <?php if (!empty($image)): ?>
+                                <img src="<?php echo htmlspecialchars($image); ?>" alt="About Us Column <?php echo $index + 1; ?>" class="about-main-image" onclick="openImageModal('<?php echo htmlspecialchars($image); ?>')">
+                            <?php else: ?>
+                                <div class="about-image-placeholder">
+                                    <span>No image</span>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
                 <div class="content-main">
                     <h2 data-translate="whoWeAre">Who We Are</h2>
                     <?php 
@@ -178,5 +206,44 @@ include 'includes/header.php';
     </section>
 </main>
 
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal" onclick="closeImageModal(event)">
+    <div class="image-modal-content" onclick="event.stopPropagation()">
+        <span class="image-modal-close" onclick="closeImageModal(event)">&times;</span>
+        <img id="modalImage" src="" alt="Full Size Image">
+    </div>
+</div>
+
 <?php include 'includes/footer.php'; ?>
+<script>
+    // Image Modal Functions
+    function openImageModal(imageSrc) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        if (modal && modalImg) {
+            modalImg.src = imageSrc;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    function closeImageModal(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        const modal = document.getElementById('imageModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeImageModal(e);
+        }
+    });
+</script>
 

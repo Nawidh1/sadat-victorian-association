@@ -76,9 +76,35 @@ try {
                 
             } elseif ($_POST['action'] === 'add') {
                 $news_id = uniqid('news_');
+                
+                // Handle image upload
+                $image_path = '';
+                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                    $upload_dir = __DIR__ . '/../uploads/images/';
+                    if (!is_dir($upload_dir)) {
+                        mkdir($upload_dir, 0755, true);
+                    }
+                    
+                    $file_extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+                    $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                    
+                    if (in_array($file_extension, $allowed_extensions)) {
+                        $file_name = 'news_' . $news_id . '_' . time() . '.' . $file_extension;
+                        $file_path = $upload_dir . $file_name;
+                        
+                        if (move_uploaded_file($_FILES['image']['tmp_name'], $file_path)) {
+                            $image_path = 'uploads/images/' . $file_name;
+                        } else {
+                            $error = 'Failed to upload image.';
+                        }
+                    } else {
+                        $error = 'Invalid file type. Please upload JPG, PNG, GIF, or WEBP images only.';
+                    }
+                }
+                
                 $stmt = $pdo->prepare(
-                    "INSERT INTO news (id, title, title_fa, date, content, content_fa) 
-                     VALUES (:id, :title, :title_fa, :date, :content, :content_fa)"
+                    "INSERT INTO news (id, title, title_fa, date, content, content_fa, image) 
+                     VALUES (:id, :title, :title_fa, :date, :content, :content_fa, :image)"
                 );
                 $stmt->execute([
                     ':id' => $news_id,
@@ -86,12 +112,54 @@ try {
                     ':title_fa' => $_POST['title_fa'] ?? '',
                     ':date' => $_POST['date'] ?? date('Y-m-d'),
                     ':content' => $_POST['content'] ?? '',
-                    ':content_fa' => $_POST['content_fa'] ?? ''
+                    ':content_fa' => $_POST['content_fa'] ?? '',
+                    ':image' => $image_path
                 ]);
                 $success = 'News item added successfully!';
             } elseif ($_POST['action'] === 'edit') {
+                // Handle image upload for edit
+                $image_path = '';
+                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                    $upload_dir = __DIR__ . '/../uploads/images/';
+                    if (!is_dir($upload_dir)) {
+                        mkdir($upload_dir, 0755, true);
+                    }
+                    
+                    $file_extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+                    $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                    
+                    if (in_array($file_extension, $allowed_extensions)) {
+                        $file_name = 'news_' . $_POST['id'] . '_' . time() . '.' . $file_extension;
+                        $file_path = $upload_dir . $file_name;
+                        
+                        if (move_uploaded_file($_FILES['image']['tmp_name'], $file_path)) {
+                            $image_path = 'uploads/images/' . $file_name;
+                            
+                            // Delete old image if exists
+                            $old_stmt = $pdo->prepare("SELECT image FROM news WHERE id = :id");
+                            $old_stmt->execute([':id' => $_POST['id']]);
+                            $old_image = $old_stmt->fetchColumn();
+                            if ($old_image && file_exists(__DIR__ . '/../' . $old_image)) {
+                                unlink(__DIR__ . '/../' . $old_image);
+                            }
+                        } else {
+                            $error = 'Failed to upload image.';
+                        }
+                    } else {
+                        $error = 'Invalid file type. Please upload JPG, PNG, GIF, or WEBP images only.';
+                    }
+                } elseif (isset($_POST['existing_image']) && !empty($_POST['existing_image'])) {
+                    // Keep existing image if no new one uploaded
+                    $image_path = $_POST['existing_image'];
+                } else {
+                    // Get current image from database
+                    $current_stmt = $pdo->prepare("SELECT image FROM news WHERE id = :id");
+                    $current_stmt->execute([':id' => $_POST['id']]);
+                    $image_path = $current_stmt->fetchColumn() ?: '';
+                }
+                
                 $stmt = $pdo->prepare(
-                    "UPDATE news SET title = :title, title_fa = :title_fa, date = :date, content = :content, content_fa = :content_fa WHERE id = :id"
+                    "UPDATE news SET title = :title, title_fa = :title_fa, date = :date, content = :content, content_fa = :content_fa, image = :image WHERE id = :id"
                 );
                 $stmt->execute([
                     ':title' => $_POST['title'] ?? '',
@@ -99,10 +167,64 @@ try {
                     ':date' => $_POST['date'] ?? date('Y-m-d'),
                     ':content' => $_POST['content'] ?? '',
                     ':content_fa' => $_POST['content_fa'] ?? '',
+                    ':image' => $image_path,
                     ':id' => $_POST['id']
                 ]);
                 $success = 'News item updated successfully!';
+            } elseif ($_POST['action'] === 'upload_image_only') {
+                // Handle image upload only for existing news item
+                $news_id = $_POST['news_id'] ?? '';
+                if (empty($news_id)) {
+                    $error = 'News item ID is required.';
+                } else {
+                    $image_path = '';
+                    if (isset($_FILES['news_image']) && $_FILES['news_image']['error'] === UPLOAD_ERR_OK) {
+                        $upload_dir = __DIR__ . '/../uploads/images/';
+                        if (!is_dir($upload_dir)) {
+                            mkdir($upload_dir, 0755, true);
+                        }
+                        
+                        $file_extension = strtolower(pathinfo($_FILES['news_image']['name'], PATHINFO_EXTENSION));
+                        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                        
+                        if (in_array($file_extension, $allowed_extensions)) {
+                            $file_name = 'news_' . $news_id . '_' . time() . '.' . $file_extension;
+                            $file_path = $upload_dir . $file_name;
+                            
+                            if (move_uploaded_file($_FILES['news_image']['tmp_name'], $file_path)) {
+                                $image_path = 'uploads/images/' . $file_name;
+                                
+                                // Delete old image if exists
+                                $old_stmt = $pdo->prepare("SELECT image FROM news WHERE id = :id");
+                                $old_stmt->execute([':id' => $news_id]);
+                                $old_image = $old_stmt->fetchColumn();
+                                if ($old_image && file_exists(__DIR__ . '/../' . $old_image)) {
+                                    unlink(__DIR__ . '/../' . $old_image);
+                                }
+                                
+                                // Update news item with new image
+                                $stmt = $pdo->prepare("UPDATE news SET image = :image WHERE id = :id");
+                                $stmt->execute([':image' => $image_path, ':id' => $news_id]);
+                                $success = 'Image uploaded successfully!';
+                            } else {
+                                $error = 'Failed to upload image.';
+                            }
+                        } else {
+                            $error = 'Invalid file type. Please upload JPG, PNG, GIF, or WEBP images only.';
+                        }
+                    } else {
+                        $error = 'Please select an image file.';
+                    }
+                }
             } elseif ($_POST['action'] === 'delete') {
+                // Delete image file if exists
+                $img_stmt = $pdo->prepare("SELECT image FROM news WHERE id = :id");
+                $img_stmt->execute([':id' => $_POST['id']]);
+                $image_path = $img_stmt->fetchColumn();
+                if ($image_path && file_exists(__DIR__ . '/../' . $image_path)) {
+                    unlink(__DIR__ . '/../' . $image_path);
+                }
+                
                 $stmt = $pdo->prepare("DELETE FROM news WHERE id = :id");
                 $stmt->execute([':id' => $_POST['id']]);
                 $success = 'News item deleted successfully!';
@@ -144,11 +266,65 @@ try {
         <?php endif; ?>
         
         <div class="admin-content">
+            <!-- Separate Form for Image Upload Only -->
+            <div class="admin-form-section" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 2px solid var(--primary-color); border-radius: 12px; padding: 2rem; margin-bottom: 2rem;">
+                <h2 style="color: var(--primary-color); margin-top: 0; display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 1.5rem;">📷</span>
+                    Upload Image for News Item
+                </h2>
+                <p style="margin-bottom: 1.5rem; color: var(--text-light);">Quick upload image for an existing news item. Select a news item and upload its image without editing other content.</p>
+                
+                <form method="POST" class="admin-form" enctype="multipart/form-data" id="imageUploadForm">
+                    <input type="hidden" name="action" value="upload_image_only">
+                    
+                    <div class="form-group">
+                        <label for="news_id_select">Select News Item *</label>
+                        <select name="news_id" id="news_id_select" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem;">
+                            <option value="">-- Select a news item --</option>
+                            <?php foreach ($news as $item): ?>
+                                <option value="<?php echo htmlspecialchars($item['id']); ?>" data-image="<?php echo htmlspecialchars($item['image'] ?? ''); ?>">
+                                    <?php echo htmlspecialchars($item['title']); ?> (<?php echo htmlspecialchars($item['date']); ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div id="currentImagePreview" style="margin-bottom: 1.5rem; display: none;">
+                        <p style="margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">Current Image:</p>
+                        <div style="position: relative; display: inline-block;">
+                            <img id="currentImageDisplay" src="" alt="Current Image" style="max-width: 300px; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <button type="button" onclick="removeNewsImageFromUpload()" class="btn-delete-image-small" style="position: absolute; top: 10px; right: 10px; padding: 0.5rem 1rem; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                <span>🗑️</span> Remove
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="news_image">Upload New Image</label>
+                        <input type="file" name="news_image" id="news_image" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" required>
+                        <small style="display: block; margin-top: 0.5rem; color: var(--text-light);">Recommended size: 800x450px. Supported formats: JPG, PNG, GIF, WEBP</small>
+                    </div>
+                    
+                    <div class="form-actions" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--border-color);">
+                        <button type="submit" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">
+                            <span style="font-size: 1.2rem; margin-right: 0.5rem;">📤</span>
+                            Upload Image Only
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
             <div class="admin-layout">
                 <div class="admin-form-section">
                 <h2>Add New News Item</h2>
-                <form method="POST" class="admin-form" id="addNewsForm">
+                <form method="POST" class="admin-form" id="addNewsForm" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="add">
+                    
+                    <div class="form-group">
+                        <label for="image">News Image</label>
+                        <input type="file" name="image" id="image" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp">
+                        <small style="display: block; margin-top: 0.5rem; color: var(--text-light);">Recommended size: 800x450px. Supported formats: JPG, PNG, GIF, WEBP</small>
+                    </div>
                     
                     <div class="form-group">
                         <label for="title">Title (English) *</label>
@@ -196,10 +372,16 @@ try {
                                 data-title-fa="<?php echo htmlspecialchars($item['title_fa'] ?? ''); ?>"
                                 data-date="<?php echo htmlspecialchars($item['date']); ?>"
                                 data-content="<?php echo htmlspecialchars($item['content'] ?? ''); ?>"
-                                data-content-fa="<?php echo htmlspecialchars($item['content_fa'] ?? ''); ?>">
+                                data-content-fa="<?php echo htmlspecialchars($item['content_fa'] ?? ''); ?>"
+                                data-image="<?php echo htmlspecialchars($item['image'] ?? ''); ?>">
                                 <div class="item-header">
                                     <h3><?php echo htmlspecialchars($item['title']); ?></h3>
                                 </div>
+                                <?php if (!empty($item['image'])): ?>
+                                <div class="item-image-preview">
+                                    <img src="../<?php echo htmlspecialchars($item['image']); ?>" alt="News Image" style="width: 100%; max-width: 200px; height: auto; border-radius: 8px; margin-bottom: 0.5rem;">
+                                </div>
+                                <?php endif; ?>
                                 <div class="item-details">
                                     <p><strong>Date:</strong> <?php echo htmlspecialchars($item['date']); ?></p>
                                     <p><?php echo htmlspecialchars(substr($item['content'], 0, 150)); ?>...</p>
@@ -226,9 +408,23 @@ try {
         <div class="admin-modal-content">
             <span class="admin-modal-close">&times;</span>
             <h2>Edit News Item</h2>
-            <form method="POST" class="admin-form" id="editNewsForm">
+            <form method="POST" class="admin-form" id="editNewsForm" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="edit">
                 <input type="hidden" name="id" id="edit_id">
+                <input type="hidden" name="existing_image" id="edit_existing_image">
+                
+                <div class="form-group">
+                    <label for="edit_image">News Image</label>
+                    <div id="edit_image_preview" style="margin-bottom: 1rem; display: none;">
+                        <p><strong>Current Image:</strong></p>
+                        <img id="edit_image_display" src="" alt="Current Image" style="max-width: 300px; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 0.5rem;">
+                        <button type="button" onclick="removeNewsImage()" class="btn-delete-image-small" style="margin-bottom: 0.5rem; padding: 0.5rem 1rem; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            <span>🗑️</span> Remove Image
+                        </button>
+                    </div>
+                    <input type="file" name="image" id="edit_image" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp">
+                    <small style="display: block; margin-top: 0.5rem; color: var(--text-light);">Upload new image to replace current one. Recommended size: 800x450px.</small>
+                </div>
                 
                 <div class="form-group">
                     <label for="edit_title">Title (English) *</label>
@@ -265,5 +461,121 @@ try {
 
     <script src="admin.js"></script>
     <script src="admin-edit-modal.js"></script>
+    <script>
+        // Remove news image function for edit modal
+        function removeNewsImage() {
+            if (confirm('Are you sure you want to remove this image?')) {
+                const editExistingImage = document.getElementById('edit_existing_image');
+                const editImagePreview = document.getElementById('edit_image_preview');
+                const editImage = document.getElementById('edit_image');
+                
+                if (editExistingImage && editImagePreview && editImage) {
+                    editExistingImage.value = '';
+                    editImagePreview.style.display = 'none';
+                    editImage.value = '';
+                }
+            }
+        }
+        
+        // Show current image when news item is selected
+        document.addEventListener('DOMContentLoaded', function() {
+            const newsSelect = document.getElementById('news_id_select');
+            const imagePreview = document.getElementById('currentImagePreview');
+            const imageDisplay = document.getElementById('currentImageDisplay');
+            
+            if (newsSelect && imagePreview && imageDisplay) {
+                newsSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const imagePath = selectedOption.getAttribute('data-image');
+                    
+                    if (imagePath && imagePath !== '') {
+                        imageDisplay.src = '../' + imagePath;
+                        imagePreview.style.display = 'block';
+                    } else {
+                        imagePreview.style.display = 'none';
+                    }
+                });
+            }
+        });
+        
+        // Remove image from image upload form
+        function removeNewsImageFromUpload() {
+            const newsId = document.getElementById('news_id_select').value;
+            if (!newsId) {
+                alert('Please select a news item first.');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to remove this image? This will delete the image file.')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.style.display = 'none';
+                
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'edit';
+                form.appendChild(actionInput);
+                
+                const idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'id';
+                idInput.value = newsId;
+                form.appendChild(idInput);
+                
+                // Get current values to preserve them
+                const currentTitle = document.querySelector('.item-card[data-id="' + newsId + '"]')?.getAttribute('data-title') || '';
+                const currentTitleFa = document.querySelector('.item-card[data-id="' + newsId + '"]')?.getAttribute('data-title-fa') || '';
+                const currentDate = document.querySelector('.item-card[data-id="' + newsId + '"]')?.getAttribute('data-date') || '';
+                const currentContent = document.querySelector('.item-card[data-id="' + newsId + '"]')?.getAttribute('data-content') || '';
+                const currentContentFa = document.querySelector('.item-card[data-id="' + newsId + '"]')?.getAttribute('data-content-fa') || '';
+                
+                const titleInput = document.createElement('input');
+                titleInput.type = 'hidden';
+                titleInput.name = 'title';
+                titleInput.value = currentTitle;
+                form.appendChild(titleInput);
+                
+                const titleFaInput = document.createElement('input');
+                titleFaInput.type = 'hidden';
+                titleFaInput.name = 'title_fa';
+                titleFaInput.value = currentTitleFa;
+                form.appendChild(titleFaInput);
+                
+                const dateInput = document.createElement('input');
+                dateInput.type = 'hidden';
+                dateInput.name = 'date';
+                dateInput.value = currentDate;
+                form.appendChild(dateInput);
+                
+                const contentInput = document.createElement('input');
+                contentInput.type = 'hidden';
+                contentInput.name = 'content';
+                contentInput.value = currentContent;
+                form.appendChild(contentInput);
+                
+                const contentFaInput = document.createElement('input');
+                contentFaInput.type = 'hidden';
+                contentFaInput.name = 'content_fa';
+                contentFaInput.value = currentContentFa;
+                form.appendChild(contentFaInput);
+                
+                const imageInput = document.createElement('input');
+                imageInput.type = 'hidden';
+                imageInput.name = 'image';
+                imageInput.value = '';
+                form.appendChild(imageInput);
+                
+                const existingImageInput = document.createElement('input');
+                existingImageInput.type = 'hidden';
+                existingImageInput.name = 'existing_image';
+                existingImageInput.value = '';
+                form.appendChild(existingImageInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
 </body>
 </html>

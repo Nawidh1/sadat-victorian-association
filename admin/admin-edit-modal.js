@@ -28,12 +28,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('edit_featured').checked = itemCard.getAttribute('data-featured') === '1';
             } else if (type === 'news') {
                 // Populate news form
-                document.getElementById('edit_id').value = itemCard.getAttribute('data-id');
+                const newsId = itemCard.getAttribute('data-id');
+                const newsImage = itemCard.getAttribute('data-image') || '';
+                
+                document.getElementById('edit_id').value = newsId;
                 document.getElementById('edit_title').value = itemCard.getAttribute('data-title') || '';
                 document.getElementById('edit_title_fa').value = itemCard.getAttribute('data-title-fa') || '';
                 document.getElementById('edit_date').value = itemCard.getAttribute('data-date') || '';
                 document.getElementById('edit_content').value = itemCard.getAttribute('data-content') || '';
                 document.getElementById('edit_content_fa').value = itemCard.getAttribute('data-content-fa') || '';
+                
+                // Handle image preview
+                const imagePreview = document.getElementById('edit_image_preview');
+                const imageDisplay = document.getElementById('edit_image_display');
+                const existingImageInput = document.getElementById('edit_existing_image');
+                
+                if (newsImage) {
+                    existingImageInput.value = newsImage;
+                    imageDisplay.src = '../' + newsImage;
+                    imagePreview.style.display = 'block';
+                } else {
+                    existingImageInput.value = '';
+                    imagePreview.style.display = 'none';
+                }
             } else if (type === 'resource') {
                 // Populate resource form
                 document.getElementById('edit_id').value = itemCard.getAttribute('data-id');

@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS news (
     date DATE NOT NULL,
     content TEXT,
     content_fa TEXT,
+    image VARCHAR(255) DEFAULT '',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_date (date)
